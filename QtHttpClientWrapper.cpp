@@ -53,7 +53,7 @@ void QtHttpClientWrapper::onClientDataReceived () {
                                       << "command :" << command
                                       << "url :"     << url
                                       << "version :" << version;
-                            m_currentRequest = new QtHttpRequest (this);
+                            m_currentRequest = new QtHttpRequest (m_serverHandle);
                             m_currentRequest->setUrl     (QUrl (url));
                             m_currentRequest->setCommand (command);
                             m_parsingStatus = AwaitingHeaders;
@@ -119,10 +119,7 @@ void QtHttpClientWrapper::onClientDataReceived () {
             }
             switch (m_parsingStatus) { // handle parsing status end/error
                 case RequestParsed: { // a valid request has ben fully parsed
-                    QtHttpReply reply;
-                    // set some additional headers
-                    reply.addHeader (QtHttpHeader::Date, QDateTime::currentDateTimeUtc ().toString ("ddd, dd MMM yyyy hh:mm:ss t").toLatin1 ());
-                    reply.addHeader (QtHttpHeader::Server, m_serverHandle->getServerName ().toUtf8 ());
+                    QtHttpReply reply (m_serverHandle);
                     emit m_serverHandle->requestNeedsReply (m_currentRequest, &reply); // allow app to handle request
                     reply.appendRawData (CRLF);
                     m_parsingStatus = sendReplyToClient (&reply);
@@ -130,7 +127,7 @@ void QtHttpClientWrapper::onClientDataReceived () {
                 }
                 case ParsingError: { // there was an error durin one of parsing steps
                     m_sockClient->readAll (); // clear remaining buffer to ignore content
-                    QtHttpReply reply;
+                    QtHttpReply reply (m_serverHandle);
                     reply.setStatusCode (QtHttpReply::BadRequest);
                     reply.appendRawData (QByteArrayLiteral ("<h1>Bad Request (HTTP parsing error) !</h1>"));
                     reply.appendRawData (CRLF);

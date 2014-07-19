@@ -1,15 +1,18 @@
 
 #include "QtHttpRequest.h"
 #include "QtHttpHeader.h"
+#include "QtHttpServer.h"
 
-QtHttpRequest::QtHttpRequest (QObject * parent)
+QtHttpRequest::QtHttpRequest (QtHttpServer * parent)
     : QObject         (parent)
     , m_url           (QUrl ())
     , m_command       (QString ())
     , m_data          (QByteArray ())
+    , m_serverHandle  (parent)
 {
-    m_headersHash.insert (QtHttpHeader::ContentLength, QByteArrayLiteral ("0"));
-    m_headersHash.insert (QtHttpHeader::Connection,    QByteArrayLiteral ("Keep-Alive"));
+    // set some additional headers
+    addHeader (QtHttpHeader::ContentLength, QByteArrayLiteral ("0"));
+    addHeader (QtHttpHeader::Connection,    QByteArrayLiteral ("Keep-Alive"));
 }
 
 QUrl QtHttpRequest::getUrl () const {

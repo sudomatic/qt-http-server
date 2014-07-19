@@ -4,12 +4,13 @@
 #include <QObject>
 #include <QHash>
 
+class QtHttpServer;
 class QtHttpReply : public QObject {
     Q_OBJECT
     Q_ENUMS (StatusCode)
 
 public:
-    explicit QtHttpReply (QObject * parent = NULL);
+    explicit QtHttpReply (QtHttpServer * parent);
 
     enum StatusCode {
         Ok         = 200,
@@ -35,6 +36,7 @@ public slots:
 private:
     StatusCode                    m_statusCode;
     QByteArray                    m_data;
+    QtHttpServer                * m_serverHandle;
     QHash<QByteArray, QByteArray> m_headersHash;
 };
 

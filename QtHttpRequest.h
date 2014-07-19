@@ -6,11 +6,12 @@
 #include <QString>
 #include <QUrl>
 
+class QtHttpServer;
 class QtHttpRequest : public QObject {
     Q_OBJECT
 
 public:
-    explicit QtHttpRequest (QObject * parent = NULL);
+    explicit QtHttpRequest (QtHttpServer * parent);
 
     QUrl              getUrl           () const;
     QByteArray        getRawData       () const;
@@ -28,6 +29,7 @@ private:
     QUrl                          m_url;
     QString                       m_command;
     QByteArray                    m_data;
+    QtHttpServer                * m_serverHandle;
     QHash<QByteArray, QByteArray> m_headersHash;
 };
 

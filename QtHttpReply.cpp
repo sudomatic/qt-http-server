@@ -1,13 +1,19 @@
 
 #include "QtHttpReply.h"
 #include "QtHttpHeader.h"
+#include "QtHttpServer.h"
 
-QtHttpReply::QtHttpReply (QObject * parent)
-    : QObject      (parent)
-    , m_statusCode (Ok)
-    , m_data       (QByteArray ())
+#include <QDateTime>
+
+QtHttpReply::QtHttpReply (QtHttpServer * parent)
+    : QObject        (parent)
+    , m_statusCode   (Ok)
+    , m_data         (QByteArray ())
+    , m_serverHandle (parent)
 {
-
+    // set some additional headers
+    addHeader (QtHttpHeader::Date,   QDateTime::currentDateTimeUtc ().toString ("ddd, dd MMM yyyy hh:mm:ss t").toLatin1 ());
+    addHeader (QtHttpHeader::Server, m_serverHandle->getServerName ().toUtf8 ());
 }
 
 int QtHttpReply::getRawDataSize () const {

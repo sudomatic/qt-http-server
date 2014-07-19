@@ -11,7 +11,7 @@ class QtHttpClientWrapper : public QObject {
     Q_OBJECT
 
 public:
-    explicit QtHttpClientWrapper (QTcpSocket * sock, QtHttpServer * parent = NULL);
+    explicit QtHttpClientWrapper (QTcpSocket * sock, QtHttpServer * parent);
 
     QString getGuid () const;
 
@@ -22,12 +22,6 @@ public:
         AwaitingContent =  2,
         RequestParsed   =  3
     };
-
-signals:
-
-
-public slots:
-
 
 private slots:
     void onClientDataReceived ();
