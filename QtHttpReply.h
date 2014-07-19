@@ -18,13 +18,14 @@ public:
         NotFound   = 404
     };
 
-    int        getRawDataSize  () const;
-    StatusCode getStatusCode   () const;
-    QByteArray getResponseData () const;
+    int               getRawDataSize  () const;
+    StatusCode        getStatusCode   () const;
+    QByteArray        getResponseData () const;
+    QList<QByteArray> getHeadersList  () const;
 
-    QHash<QByteArray, QByteArray> getHeaders () const;
+    QByteArray getHeader (QByteArray header) const;
 
-signals:
+    static const QByteArray getStatusTextForCode (StatusCode statusCode);
 
 public slots:
     void setStatusCode    (StatusCode statusCode);

@@ -84,11 +84,8 @@ void QtHttpClientWrapper::onClientDataReceived () {
                                 bool ok  = false;
                                 len = value.toInt (&ok, 10);
                                 if (ok) {
-                                    m_currentRequest->setContentLength (len);
+                                    m_currentRequest->addHeader (QtHttpHeader::ContentLength, QByteArray::number (len));
                                 }
-                            }
-                            else if (header == QtHttpHeader::Connection) {
-                                m_currentRequest->setKeepAlive (value != QByteArrayLiteral ("close"));
                             }
                         }
                         else {
@@ -98,7 +95,7 @@ void QtHttpClientWrapper::onClientDataReceived () {
                     }
                     else { // end of headers
                         qDebug () << "Debug : HTTP end of headers";
-                        if (m_currentRequest->getContentLength () > 0) {
+                        if (m_currentRequest->getHeader (QtHttpHeader::ContentLength).toInt () > 0) {
                             m_parsingStatus = AwaitingContent;
                         }
                         else {
@@ -112,7 +109,7 @@ void QtHttpClientWrapper::onClientDataReceived () {
                     qDebug () << "Debug : HTTP"
                               << "content :" << m_currentRequest->getRawData ().toHex ()
                               << "size :"    << m_currentRequest->getRawData ().size  ();
-                    if (m_currentRequest->getRawData ().size () == m_currentRequest->getContentLength ()) {
+                    if (m_currentRequest->getRawData ().size () == m_currentRequest->getHeader (QtHttpHeader::ContentLength).toInt ()) {
                         qDebug () << "Debug : HTTP end of content";
                         m_parsingStatus = RequestParsed;
                     }
@@ -132,7 +129,7 @@ void QtHttpClientWrapper::onClientDataReceived () {
                     m_sockClient->readAll (); // clear remaining buffer to ignore content
                     QtHttpReply reply;
                     reply.setStatusCode (QtHttpReply::BadRequest);
-                    reply.appendRawData (QByteArrayLiteral ("HTTP PARSING ERROR !"));  // FIXME : better error message and code (HTTP standard)
+                    reply.appendRawData (QByteArrayLiteral ("<h1>Bad Request (HTTP parsing error) !</h1>"));
                     reply.appendRawData (CRLF);
                     m_parsingStatus = sendReplyToClient (&reply);
                     break;
@@ -160,16 +157,15 @@ QtHttpClientWrapper::ParsingStatus QtHttpClientWrapper::sendReplyToClient (QtHtt
     data.append (SPACE);
     data.append (QByteArray::number (reply->getStatusCode ()));
     data.append (SPACE);
-    data.append (" "); // TODO : use a map to print text according to status code
+    data.append (QtHttpReply::getStatusTextForCode (reply->getStatusCode ()));
     data.append (CRLF);
     // automatic header : date
     data.append (createHeaderLine (QtHttpHeader::Date, QDateTime::currentDateTimeUtc ().toString ("ddd, dd MMM yyyy hh:mm:ss t").toLatin1 ()));
     // automatic header : server name
     data.append (createHeaderLine (QtHttpHeader::Server, QByteArrayLiteral ("Qt5 HTTP Server"))); // FIXME : add ability to change it in QtHttpServer
     // Header name: header value
-    QHash<QByteArray, QByteArray> headers = reply->getHeaders ();
-    foreach (QByteArray header, headers.keys ()) {
-        data.append (createHeaderLine (header, headers.value (header)));
+    foreach (QByteArray header, reply->getHeadersList ()) {
+        data.append (createHeaderLine (header, reply->getHeader (header)));
     }
     // automatic header : content length
     data.append (createHeaderLine (QtHttpHeader::ContentLength, QByteArray::number (reply->getRawDataSize ())));
@@ -182,7 +178,7 @@ QtHttpClientWrapper::ParsingStatus QtHttpClientWrapper::sendReplyToClient (QtHtt
     m_sockClient->write (data);
     m_sockClient->flush ();
     if (m_currentRequest) {
-        if (!m_currentRequest->getKeepAlive ()) { // must close connection after this request
+        if (m_currentRequest->getHeader (QtHttpHeader::Connection).toLower () == QByteArrayLiteral ("close")) { // must close connection after this request
             m_sockClient->close ();
         }
         m_currentRequest->deleteLater ();

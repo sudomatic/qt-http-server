@@ -1,23 +1,15 @@
 
 #include "QtHttpRequest.h"
+#include "QtHttpHeader.h"
 
 QtHttpRequest::QtHttpRequest (QObject * parent)
     : QObject         (parent)
-    , m_contentLength (-1)
-    , m_keepAlive     (true)
     , m_url           (QUrl ())
     , m_command       (QString ())
     , m_data          (QByteArray ())
 {
-
-}
-
-int QtHttpRequest::getContentLength () const {
-    return m_contentLength;
-}
-
-bool QtHttpRequest::getKeepAlive () const {
-    return m_keepAlive;
+    m_headersHash.insert (QtHttpHeader::ContentLength, QByteArrayLiteral ("0"));
+    m_headersHash.insert (QtHttpHeader::Connection,    QByteArrayLiteral ("Keep-Alive"));
 }
 
 QUrl QtHttpRequest::getUrl () const {
@@ -28,16 +20,12 @@ QByteArray QtHttpRequest::getRawData () const {
     return m_data;
 }
 
+QList<QByteArray> QtHttpRequest::getHeadersList () const {
+    return m_headersHash.keys ();
+}
+
 QByteArray QtHttpRequest::getHeader (QByteArray header) const {
     return m_headersHash.value (header, QByteArray ());
-}
-
-void QtHttpRequest::setContentLength (int len) {
-    m_contentLength = len;
-}
-
-void QtHttpRequest::setKeepAlive (bool keepAlive) {
-    m_keepAlive = keepAlive;
 }
 
 void QtHttpRequest::setUrl (QUrl url) {
