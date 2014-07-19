@@ -24,7 +24,7 @@ public slots:
     void setUrl           (QUrl url);
     void setCommand       (QString command);
     void addHeader        (QByteArray header, QByteArray value);
-    void appendRawData       (QByteArray data);
+    void appendRawData    (QByteArray data);
 
 private:
     int                           m_contentLength;

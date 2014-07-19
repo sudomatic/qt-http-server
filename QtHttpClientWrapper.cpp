@@ -5,6 +5,11 @@
 #include "QtHttpServer.h"
 
 #include <QCryptographicHash>
+#include <QDateTime>
+
+#define CRLF  QByteArrayLiteral ("\r\n")
+#define SPACE char (' ')
+#define COLON char (':')
 
 inline static const QString hashFromPointerAddress (void * pointer) {
     return QString::fromLocal8Bit (
@@ -37,12 +42,12 @@ void QtHttpClientWrapper::onClientDataReceived () {
             switch (m_parsingStatus) { // handle parsing steps
                 case AwaitingRequest: { // "command url version" × 1
                     QString str = QString::fromUtf8 (line);
-                    QStringList parts = str.split (' ', QString::SkipEmptyParts);
+                    QStringList parts = str.split (SPACE, QString::SkipEmptyParts);
                     if (parts.size () == 3) {
                         QString command = parts.at (0);
                         QString url     = parts.at (1);
                         QString version = parts.at (2);
-                        if (version == QStringLiteral ("HTTP/1.1")) {
+                        if (version == m_serverHandle->getHttpVersion ()) {
                             qDebug () << "Debug : HTTP"
                                       << "command :" << command
                                       << "url :"     << url
@@ -65,10 +70,10 @@ void QtHttpClientWrapper::onClientDataReceived () {
                 }
                 case AwaitingHeaders: { // "header: value" × N (until empty line)
                     if (!line.isEmpty ()) { // parse headers
-                        int pos = line.indexOf (QByteArrayLiteral (": "));
+                        int pos = line.indexOf (COLON);
                         if (pos > 0) {
-                            QByteArray header = line.left (pos);
-                            QByteArray value  = line.mid  (pos +2);
+                            QByteArray header = line.left (pos).trimmed ();
+                            QByteArray value  = line.mid  (pos +1).trimmed ();
                             qDebug () << "Debug : HTTP"
                                       << "header :" << header
                                       << "value :"  << value;
@@ -118,14 +123,17 @@ void QtHttpClientWrapper::onClientDataReceived () {
                 case RequestParsed: { // a valid request has ben fully parsed
                     QtHttpReply reply;
                     emit m_serverHandle->requestNeedsReply (m_currentRequest, &reply); // allow app to handle request
-                    reply.appendRawData (QByteArrayLiteral ("OK !\r\n")); // FIXME : for test only
+                    reply.appendRawData (QByteArrayLiteral ("OK !")); // FIXME : for test only
+                    reply.appendRawData (CRLF);
                     m_parsingStatus = sendReplyToClient (&reply);
                     break;
                 }
                 case ParsingError: { // there was an error durin one of parsing steps
                     m_sockClient->readAll (); // clear remaining buffer to ignore content
                     QtHttpReply reply;
-                    reply.appendRawData (QByteArrayLiteral ("HTTP PARSING ERROR !\r\n"));  // FIXME : better error message and code (HTTP standard)
+                    reply.setStatusCode (QtHttpReply::BadRequest);
+                    reply.appendRawData (QByteArrayLiteral ("HTTP PARSING ERROR !"));  // FIXME : better error message and code (HTTP standard)
+                    reply.appendRawData (CRLF);
                     m_parsingStatus = sendReplyToClient (&reply);
                     break;
                 }
@@ -135,8 +143,43 @@ void QtHttpClientWrapper::onClientDataReceived () {
     }
 }
 
+inline QByteArray createHeaderLine (QByteArray header, QByteArray value) {
+    QByteArray ret;
+    ret += header;
+    ret += COLON;
+    ret += SPACE;
+    ret += value;
+    ret += CRLF;
+    return ret;
+}
+
 QtHttpClientWrapper::ParsingStatus QtHttpClientWrapper::sendReplyToClient (QtHttpReply * reply) {
-    m_sockClient->write (reply->getResponseData ());
+    QByteArray data;
+    // HTTP Version + Status Code + Status Msg
+    data.append (m_serverHandle->getHttpVersion ());
+    data.append (SPACE);
+    data.append (QByteArray::number (reply->getStatusCode ()));
+    data.append (SPACE);
+    data.append (" "); // TODO : use a map to print text according to status code
+    data.append (CRLF);
+    // automatic header : date
+    data.append (createHeaderLine ("Date", QDateTime::currentDateTimeUtc ().toString ("ddd, dd MMM yyyy hh:mm:ss t").toLatin1 ()));
+    // automatic header : server name
+    data.append (createHeaderLine ("Server", QByteArrayLiteral ("Qt5 HTTP Server"))); // FIXME : add ability to change it in QtHttpServer
+    // Header name: header value
+    QHash<QByteArray, QByteArray> headers = reply->getHeaders ();
+    foreach (QByteArray header, headers.keys ()) {
+        data.append (createHeaderLine (header, headers.value (header)));
+    }
+    // automatic header : content length
+    data.append (createHeaderLine ("Content-Length", QByteArray::number (reply->getRawDataSize ())));
+    // empty line
+    data.append (CRLF);
+    // content raw data
+    data.append (reply->getResponseData ());
+    // write to socket
+    qDebug () << "Debug: reply=" << data;
+    m_sockClient->write (data);
     m_sockClient->flush ();
     if (m_currentRequest) {
         if (!m_currentRequest->getKeepAlive ()) { // must close connection after this request

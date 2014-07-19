@@ -16,6 +16,8 @@ public:
     explicit QtHttpServer     (QObject * parent = NULL);
     virtual ~QtHttpServer     ();
 
+    static const QString getHttpVersion ();
+
 public slots:
     void start                (quint16 port = 0);
     void stop                 ();
@@ -36,6 +38,8 @@ private slots:
 private:
     QTcpServer                              *  m_sockServer;
     QHash<QTcpSocket *, QtHttpClientWrapper *> m_socksClientsHash;
+
+    static const QString s_httpVersion;
 };
 
 #endif // QTHTTPSERVER_H

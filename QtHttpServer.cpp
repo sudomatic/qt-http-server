@@ -6,7 +6,7 @@
 
 #include <QDebug>
 
-#define CRLF QByteArrayLiteral ("\r\n")
+const QString QtHttpServer::s_httpVersion = QStringLiteral ("HTTP/1.1");
 
 QtHttpServer::QtHttpServer (QObject * parent)
     : QObject (parent)
@@ -17,6 +17,10 @@ QtHttpServer::QtHttpServer (QObject * parent)
 
 QtHttpServer::~QtHttpServer () {
     stop ();
+}
+
+const QString QtHttpServer::getHttpVersion () {
+    return s_httpVersion;
 }
 
 void QtHttpServer::start (quint16 port) {
