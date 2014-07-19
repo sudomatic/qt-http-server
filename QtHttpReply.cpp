@@ -12,7 +12,7 @@ QtHttpReply::QtHttpReply (QtHttpServer * parent)
     , m_serverHandle (parent)
 {
     // set some additional headers
-    addHeader (QtHttpHeader::Date,   QDateTime::currentDateTimeUtc ().toString ("ddd, dd MMM yyyy hh:mm:ss t").toLatin1 ());
+    addHeader (QtHttpHeader::Date,   QDateTime::currentDateTimeUtc ().toString ("ddd, dd MMM yyyy hh:mm:ss t").toUtf8 ());
     addHeader (QtHttpHeader::Server, m_serverHandle->getServerName ().toUtf8 ());
 }
 
@@ -24,7 +24,7 @@ QtHttpReply::StatusCode QtHttpReply::getStatusCode () const {
     return m_statusCode;
 }
 
-QByteArray QtHttpReply::getResponseData () const {
+QByteArray QtHttpReply::getRawData () const {
     return m_data;
 }
 

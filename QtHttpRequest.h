@@ -13,6 +13,7 @@ class QtHttpRequest : public QObject {
 public:
     explicit QtHttpRequest (QtHttpServer * parent);
 
+    int               getRawDataSize   () const;
     QUrl              getUrl           () const;
     QByteArray        getRawData       () const;
     QList<QByteArray> getHeadersList   () const;

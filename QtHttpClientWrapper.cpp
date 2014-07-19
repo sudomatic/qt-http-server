@@ -109,7 +109,7 @@ void QtHttpClientWrapper::onClientDataReceived () {
                     qDebug () << "Debug : HTTP"
                               << "content :" << m_currentRequest->getRawData ().toHex ()
                               << "size :"    << m_currentRequest->getRawData ().size  ();
-                    if (m_currentRequest->getRawData ().size () == m_currentRequest->getHeader (QtHttpHeader::ContentLength).toInt ()) {
+                    if (m_currentRequest->getRawDataSize () == m_currentRequest->getHeader (QtHttpHeader::ContentLength).toInt ()) {
                         qDebug () << "Debug : HTTP end of content";
                         m_parsingStatus = RequestParsed;
                     }
@@ -167,7 +167,7 @@ QtHttpClientWrapper::ParsingStatus QtHttpClientWrapper::sendReplyToClient (QtHtt
     // empty line
     data.append (CRLF);
     // content raw data
-    data.append (reply->getResponseData ());
+    data.append (reply->getRawData ());
     // write to socket
     qDebug () << "Debug: reply=" << data;
     m_sockClient->write (data);

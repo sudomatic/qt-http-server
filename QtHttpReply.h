@@ -21,7 +21,7 @@ public:
 
     int               getRawDataSize  () const;
     StatusCode        getStatusCode   () const;
-    QByteArray        getResponseData () const;
+    QByteArray        getRawData      () const;
     QList<QByteArray> getHeadersList  () const;
 
     QByteArray getHeader (QByteArray header) const;
