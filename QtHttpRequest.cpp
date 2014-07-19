@@ -20,8 +20,16 @@ bool QtHttpRequest::getKeepAlive () const {
     return m_keepAlive;
 }
 
+QUrl QtHttpRequest::getUrl () const {
+    return m_url;
+}
+
 QByteArray QtHttpRequest::getRawData () const {
     return m_data;
+}
+
+QByteArray QtHttpRequest::getHeader (QByteArray header) const {
+    return m_headersHash.value (header, QByteArray ());
 }
 
 void QtHttpRequest::setContentLength (int len) {

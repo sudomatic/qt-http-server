@@ -123,7 +123,6 @@ void QtHttpClientWrapper::onClientDataReceived () {
                 case RequestParsed: { // a valid request has ben fully parsed
                     QtHttpReply reply;
                     emit m_serverHandle->requestNeedsReply (m_currentRequest, &reply); // allow app to handle request
-                    reply.appendRawData (QByteArrayLiteral ("OK !")); // FIXME : for test only
                     reply.appendRawData (CRLF);
                     m_parsingStatus = sendReplyToClient (&reply);
                     break;

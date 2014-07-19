@@ -14,7 +14,9 @@ public:
 
     int        getContentLength () const;
     bool       getKeepAlive     () const;
+    QUrl       getUrl           () const;
     QByteArray getRawData       () const;
+    QByteArray getHeader        (QByteArray header) const;
 
 signals:
 
