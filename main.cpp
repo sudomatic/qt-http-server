@@ -34,7 +34,7 @@ static void onRequestNeedsReply (QtHttpRequest * request, QtHttpReply * reply) {
     qDebug () << "QtHttpServer client request :" << request;
 
     reply->appendRawData (QByteArrayLiteral ("<h1>It Works !</h1>"));
-    reply->appendRawData (QByteArrayLiteral ("<h2>Status code : ")    % QByteArray::number (reply->getStatusCode ()) % QByteArrayLiteral ("</h2>"));
+    reply->appendRawData (QByteArrayLiteral ("<h2>Server name : ")    % reply->getHeader (QtHttpHeader::Server) % QByteArrayLiteral ("</h2>"));
     reply->appendRawData (QByteArrayLiteral ("<h3>Requested URL: ")   % request->getUrl ().toString ().toUtf8 ()     % QByteArrayLiteral ("</h3>"));
     reply->appendRawData (QByteArrayLiteral ("<h4>Your User-Agent: ") % request->getHeader (QtHttpHeader::UserAgent) % QByteArrayLiteral ("</h4>"));
     reply->appendRawData (QByteArrayLiteral ("<span>OK.</span>"));
@@ -52,6 +52,7 @@ int main (int argc, char * argv []) {
     QObject::connect (server, &QtHttpServer::clientDisconnected, &onClientDisconnected);
     QObject::connect (server, &QtHttpServer::requestNeedsReply,  &onRequestNeedsReply);
 
+    server->setServerName (QStringLiteral ("My Test Qt HTTP Server"));
     server->start (1234);
 
     return app.exec ();

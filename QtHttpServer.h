@@ -16,11 +16,14 @@ public:
     explicit QtHttpServer     (QObject * parent = NULL);
     virtual ~QtHttpServer     ();
 
+    const QString getServerName () const;
+
     static const QString getHttpVersion ();
 
 public slots:
     void start                (quint16 port = 0);
     void stop                 ();
+    void setServerName        (QString serverName);
 
 signals:
     void started              (quint16 port);
@@ -36,6 +39,7 @@ private slots:
     void onClientDisconnected ();
 
 private:
+    QString                                    m_serverName;
     QTcpServer                              *  m_sockServer;
     QHash<QTcpSocket *, QtHttpClientWrapper *> m_socksClientsHash;
 

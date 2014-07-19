@@ -1,5 +1,6 @@
 
 #include "QtHttpReply.h"
+#include "QtHttpHeader.h"
 
 QtHttpReply::QtHttpReply (QObject * parent)
     : QObject      (parent)

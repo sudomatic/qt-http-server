@@ -9,7 +9,8 @@
 const QString QtHttpServer::s_httpVersion = QStringLiteral ("HTTP/1.1");
 
 QtHttpServer::QtHttpServer (QObject * parent)
-    : QObject (parent)
+    : QObject      (parent)
+    , m_serverName (QStringLiteral ("The Qt5 HTTP Server"))
 {
     m_sockServer = new QTcpServer (this);
     connect (m_sockServer, &QTcpServer::newConnection, this, &QtHttpServer::onClientConnected);
@@ -17,6 +18,10 @@ QtHttpServer::QtHttpServer (QObject * parent)
 
 QtHttpServer::~QtHttpServer () {
     stop ();
+}
+
+const QString QtHttpServer::getServerName () const {
+    return m_serverName;
 }
 
 const QString QtHttpServer::getHttpVersion () {
@@ -37,6 +42,10 @@ void QtHttpServer::stop () {
         m_sockServer->close ();
         emit stopped ();
     }
+}
+
+void QtHttpServer::setServerName (QString serverName) {
+    m_serverName = serverName;
 }
 
 void QtHttpServer::onClientConnected () {

@@ -120,6 +120,9 @@ void QtHttpClientWrapper::onClientDataReceived () {
             switch (m_parsingStatus) { // handle parsing status end/error
                 case RequestParsed: { // a valid request has ben fully parsed
                     QtHttpReply reply;
+                    // set some additional headers
+                    reply.addHeader (QtHttpHeader::Date, QDateTime::currentDateTimeUtc ().toString ("ddd, dd MMM yyyy hh:mm:ss t").toLatin1 ());
+                    reply.addHeader (QtHttpHeader::Server, m_serverHandle->getServerName ().toUtf8 ());
                     emit m_serverHandle->requestNeedsReply (m_currentRequest, &reply); // allow app to handle request
                     reply.appendRawData (CRLF);
                     m_parsingStatus = sendReplyToClient (&reply);
@@ -159,16 +162,11 @@ QtHttpClientWrapper::ParsingStatus QtHttpClientWrapper::sendReplyToClient (QtHtt
     data.append (SPACE);
     data.append (QtHttpReply::getStatusTextForCode (reply->getStatusCode ()));
     data.append (CRLF);
-    // automatic header : date
-    data.append (createHeaderLine (QtHttpHeader::Date, QDateTime::currentDateTimeUtc ().toString ("ddd, dd MMM yyyy hh:mm:ss t").toLatin1 ()));
-    // automatic header : server name
-    data.append (createHeaderLine (QtHttpHeader::Server, QByteArrayLiteral ("Qt5 HTTP Server"))); // FIXME : add ability to change it in QtHttpServer
     // Header name: header value
+    reply->addHeader (QtHttpHeader::ContentLength, QByteArray::number (reply->getRawDataSize ()));
     foreach (QByteArray header, reply->getHeadersList ()) {
         data.append (createHeaderLine (header, reply->getHeader (header)));
     }
-    // automatic header : content length
-    data.append (createHeaderLine (QtHttpHeader::ContentLength, QByteArray::number (reply->getRawDataSize ())));
     // empty line
     data.append (CRLF);
     // content raw data
