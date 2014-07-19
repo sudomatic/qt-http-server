@@ -3,6 +3,7 @@
 #include "QtHttpRequest.h"
 #include "QtHttpReply.h"
 #include "QtHttpServer.h"
+#include "QtHttpHeader.h"
 
 #include <QCryptographicHash>
 #include <QDateTime>
@@ -78,7 +79,7 @@ void QtHttpClientWrapper::onClientDataReceived () {
                                       << "header :" << header
                                       << "value :"  << value;
                             m_currentRequest->addHeader (header, value);
-                            if (header == QByteArrayLiteral ("Content-Length")) {
+                            if (header == QtHttpHeader::ContentLength) {
                                 int  len = -1;
                                 bool ok  = false;
                                 len = value.toInt (&ok, 10);
@@ -86,7 +87,7 @@ void QtHttpClientWrapper::onClientDataReceived () {
                                     m_currentRequest->setContentLength (len);
                                 }
                             }
-                            else if (header == QByteArrayLiteral ("Connection")) {
+                            else if (header == QtHttpHeader::Connection) {
                                 m_currentRequest->setKeepAlive (value != QByteArrayLiteral ("close"));
                             }
                         }
@@ -162,16 +163,16 @@ QtHttpClientWrapper::ParsingStatus QtHttpClientWrapper::sendReplyToClient (QtHtt
     data.append (" "); // TODO : use a map to print text according to status code
     data.append (CRLF);
     // automatic header : date
-    data.append (createHeaderLine ("Date", QDateTime::currentDateTimeUtc ().toString ("ddd, dd MMM yyyy hh:mm:ss t").toLatin1 ()));
+    data.append (createHeaderLine (QtHttpHeader::Date, QDateTime::currentDateTimeUtc ().toString ("ddd, dd MMM yyyy hh:mm:ss t").toLatin1 ()));
     // automatic header : server name
-    data.append (createHeaderLine ("Server", QByteArrayLiteral ("Qt5 HTTP Server"))); // FIXME : add ability to change it in QtHttpServer
+    data.append (createHeaderLine (QtHttpHeader::Server, QByteArrayLiteral ("Qt5 HTTP Server"))); // FIXME : add ability to change it in QtHttpServer
     // Header name: header value
     QHash<QByteArray, QByteArray> headers = reply->getHeaders ();
     foreach (QByteArray header, headers.keys ()) {
         data.append (createHeaderLine (header, headers.value (header)));
     }
     // automatic header : content length
-    data.append (createHeaderLine ("Content-Length", QByteArray::number (reply->getRawDataSize ())));
+    data.append (createHeaderLine (QtHttpHeader::ContentLength, QByteArray::number (reply->getRawDataSize ())));
     // empty line
     data.append (CRLF);
     // content raw data

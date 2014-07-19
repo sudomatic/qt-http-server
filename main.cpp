@@ -6,6 +6,7 @@
 #include "QtHttpServer.h"
 #include "QtHttpRequest.h"
 #include "QtHttpReply.h"
+#include "QtHttpHeader.h"
 
 static QtHttpServer * server = NULL;
 
@@ -33,9 +34,9 @@ static void onRequestNeedsReply (QtHttpRequest * request, QtHttpReply * reply) {
     qDebug () << "QtHttpServer client request :" << request;
 
     reply->appendRawData (QByteArrayLiteral ("<h1>It Works !</h1>"));
-    reply->appendRawData (QByteArrayLiteral ("<h2>Status code : ") % QByteArray::number (reply->getStatusCode ()) % QByteArrayLiteral ("</h2>"));
-    reply->appendRawData (QByteArrayLiteral ("<h3>Requested URL: ") % request->getUrl ().toString ().toUtf8 () % QByteArrayLiteral ("</h3>"));
-    reply->appendRawData (QByteArrayLiteral ("<h4>Your User-Agent: ") % request->getHeader (QByteArrayLiteral ("User-Agent")) % QByteArrayLiteral ("</h4>"));
+    reply->appendRawData (QByteArrayLiteral ("<h2>Status code : ")    % QByteArray::number (reply->getStatusCode ()) % QByteArrayLiteral ("</h2>"));
+    reply->appendRawData (QByteArrayLiteral ("<h3>Requested URL: ")   % request->getUrl ().toString ().toUtf8 ()     % QByteArrayLiteral ("</h3>"));
+    reply->appendRawData (QByteArrayLiteral ("<h4>Your User-Agent: ") % request->getHeader (QtHttpHeader::UserAgent) % QByteArrayLiteral ("</h4>"));
     reply->appendRawData (QByteArrayLiteral ("<span>OK.</span>"));
 }
 
