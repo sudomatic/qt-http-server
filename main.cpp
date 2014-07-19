@@ -33,11 +33,28 @@ static void onClientDisconnected (QString guid) {
 static void onRequestNeedsReply (QtHttpRequest * request, QtHttpReply * reply) {
     qDebug () << "QtHttpServer client request :" << request;
 
-    reply->appendRawData (QByteArrayLiteral ("<h1>It Works !</h1>"));
-    reply->appendRawData (QByteArrayLiteral ("<h2>Server name : ")    % reply->getHeader (QtHttpHeader::Server) % QByteArrayLiteral ("</h2>"));
-    reply->appendRawData (QByteArrayLiteral ("<h3>Requested URL: ")   % request->getUrl ().toString ().toUtf8 ()     % QByteArrayLiteral ("</h3>"));
-    reply->appendRawData (QByteArrayLiteral ("<h4>Your User-Agent: ") % request->getHeader (QtHttpHeader::UserAgent) % QByteArrayLiteral ("</h4>"));
-    reply->appendRawData (QByteArrayLiteral ("<span>OK.</span>"));
+
+    reply->appendRawData (QByteArrayLiteral ("<html>"));
+    reply->appendRawData (QByteArrayLiteral ("<head>"));
+    reply->appendRawData (QByteArrayLiteral ("<title>Testing Qt5 HTTP Server</title>"));
+    reply->appendRawData (QByteArrayLiteral ("<style>pre { border: 1px solid darkgray; background: lightgray; padding: 10px; }</style>"));
+    reply->appendRawData (QByteArrayLiteral ("</head>"));
+    reply->appendRawData (QByteArrayLiteral ("<body>"));
+    reply->appendRawData (QByteArrayLiteral ("<h1>It Works !</h1>\r\n"));
+    reply->appendRawData (QByteArrayLiteral ("<hr />\r\n"));
+    reply->appendRawData (QByteArrayLiteral ("<h2>HTTP command: ")       % request->getCommand ().toUtf8 ()             % QByteArrayLiteral ("</h2>\r\n"));
+    reply->appendRawData (QByteArrayLiteral ("<h3>Requested URL: ")      % request->getUrl ().toString ().toUtf8 ()     % QByteArrayLiteral ("</h3>\r\n"));
+    reply->appendRawData (QByteArrayLiteral ("<h4>Virtual host: ")       % request->getHeader (QtHttpHeader::Host)      % QByteArrayLiteral ("</h4>\r\n"));
+    reply->appendRawData (QByteArrayLiteral ("<h5>Your User-Agent: ")    % request->getHeader (QtHttpHeader::UserAgent) % QByteArrayLiteral ("</h5>\r\n"));
+    reply->appendRawData (QByteArrayLiteral ("<h6>Request raw data:\r\n</h6>"));
+    reply->appendRawData (QByteArrayLiteral ("<pre>")                    % request->getRawData ()                       % QByteArrayLiteral ("</pre>\r\n"));
+    reply->appendRawData (QByteArrayLiteral ("<br />\r\n"));
+    reply->appendRawData (QByteArrayLiteral ("<h2>Server name : ")       % reply->getHeader (QtHttpHeader::Server)      % QByteArrayLiteral ("</h2>\r\n"));
+    reply->appendRawData (QByteArrayLiteral ("<h3>Reply creation : ")    % reply->getHeader (QtHttpHeader::Date)        % QByteArrayLiteral ("</h3>\r\n"));
+    reply->appendRawData (QByteArrayLiteral ("<pre>")                    % QByteArrayLiteral ("OK.")                    % QByteArrayLiteral ("</pre>\r\n"));
+    reply->appendRawData (QByteArrayLiteral ("<br />\r\n"));
+    reply->appendRawData (QByteArrayLiteral ("</body>"));
+    reply->appendRawData (QByteArrayLiteral ("</html>"));
 }
 
 int main (int argc, char * argv []) {

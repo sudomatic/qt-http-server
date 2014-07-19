@@ -19,6 +19,10 @@ QUrl QtHttpRequest::getUrl () const {
     return m_url;
 }
 
+QString QtHttpRequest::getCommand () const {
+    return m_command;
+}
+
 int QtHttpRequest::getRawDataSize () const {
     return m_data.size ();
 }

@@ -15,6 +15,7 @@ public:
 
     int               getRawDataSize   () const;
     QUrl              getUrl           () const;
+    QString           getCommand       () const;
     QByteArray        getRawData       () const;
     QList<QByteArray> getHeadersList   () const;
 
