@@ -36,7 +36,6 @@ static void onClientDisconnected (QString guid) {
 static void onRequestNeedsReply (QtHttpRequest * request, QtHttpReply * reply) {
     qDebug () << "QtHttpServer client request :" << request;
 
-
     reply->appendRawData (QByteArrayLiteral ("<html>"));
     reply->appendRawData (QByteArrayLiteral ("<head>"));
     reply->appendRawData (QByteArrayLiteral ("<title>Testing Qt5 HTTP Server</title>"));
@@ -60,7 +59,7 @@ static void onRequestNeedsReply (QtHttpRequest * request, QtHttpReply * reply) {
     for (int idx = 0; idx < pairsList.size (); idx++) {
         QPair<QString, QString> pair = pairsList.at (idx);
         reply->appendRawData (QByteArrayLiteral ("<tr>"));
-        reply->appendRawData (QByteArrayLiteral ("<td>") % pair.first.toUtf8 () % QByteArrayLiteral ("</td>"));
+        reply->appendRawData (QByteArrayLiteral ("<td>") % pair.first.toUtf8 ()  % QByteArrayLiteral ("</td>"));
         reply->appendRawData (QByteArrayLiteral ("<td>") % pair.second.toUtf8 () % QByteArrayLiteral ("</td>"));
         reply->appendRawData (QByteArrayLiteral ("</tr>"));
     }
@@ -91,7 +90,7 @@ int main (int argc, char * argv []) {
     QObject::connect (server, &QtHttpServer::requestNeedsReply,  &onRequestNeedsReply);
 
     server->setServerName (QStringLiteral ("My Test Qt HTTP Server"));
-    server->start (1234);
+    server->start         (0);
 
     return app.exec ();
 }
