@@ -41,9 +41,17 @@ void ExampleStaticFileServing::onServerError (QString msg) {
     qDebug () << "QtHttpServer error :" << msg;
 }
 
+static inline void printErrorToReply (QtHttpReply * reply, QString errorMessage) {
+    reply->addHeader ("Content-Type", QByteArrayLiteral ("text/plain"));
+    reply->addHeader ("Content-Length", QByteArray::number (errorMessage.size ()));
+    reply->appendRawData (errorMessage.toLocal8Bit ());
+}
+
 void ExampleStaticFileServing::onRequestNeedsReply (QtHttpRequest * request, QtHttpReply * reply) {
-    if (request->getCommand () == "GET") {
-        QFile file (m_baseUrl % "/" % request->getUrl ().path ());
+    QString command = request->getCommand ();
+    if (command == QStringLiteral ("GET")) {
+        QString path = request->getUrl ().path ();
+        QFile file (m_baseUrl % "/" % path);
         if (file.exists ()) {
             QMimeType mime = m_mimeDb->mimeTypeForFile (file.fileName ());
             if (file.open (QFile::ReadOnly)) {
@@ -53,7 +61,16 @@ void ExampleStaticFileServing::onRequestNeedsReply (QtHttpRequest * request, QtH
                 reply->appendRawData (data);
                 file.close ();
             }
+            else {
+                printErrorToReply (reply, "Requested file " % path % " couldn't be open for reading !");
+            }
         }
+        else {
+            printErrorToReply (reply, "Requested file " % path % " couldn't be found !");
+        }
+    }
+    else {
+        printErrorToReply (reply, "Unhandled HTTP/1.1 method " % command % " on static file server !");
     }
 }
 
