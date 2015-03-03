@@ -49,10 +49,10 @@ void QtHttpClientWrapper::onClientDataReceived () {
                         QString url     = parts.at (1);
                         QString version = parts.at (2);
                         if (version == m_serverHandle->getHttpVersion ()) {
-                            qDebug () << "Debug : HTTP"
-                                      << "command :" << command
-                                      << "url :"     << url
-                                      << "version :" << version;
+                            //qDebug () << "Debug : HTTP"
+                            //          << "command :" << command
+                            //          << "url :"     << url
+                            //          << "version :" << version;
                             m_currentRequest = new QtHttpRequest (m_serverHandle);
                             m_currentRequest->setUrl     (QUrl (url));
                             m_currentRequest->setCommand (command);
@@ -60,12 +60,12 @@ void QtHttpClientWrapper::onClientDataReceived () {
                         }
                         else {
                             m_parsingStatus = ParsingError;
-                            qWarning () << "Error : unhandled HTTP version :" << version;
+                            //qWarning () << "Error : unhandled HTTP version :" << version;
                         }
                     }
                     else {
                         m_parsingStatus = ParsingError;
-                        qWarning () << "Error : incorrect HTTP command line :" << line;
+                        //qWarning () << "Error : incorrect HTTP command line :" << line;
                     }
                     break;
                 }
@@ -75,9 +75,9 @@ void QtHttpClientWrapper::onClientDataReceived () {
                         if (pos > 0) {
                             QByteArray header = line.left (pos).trimmed ();
                             QByteArray value  = line.mid  (pos +1).trimmed ();
-                            qDebug () << "Debug : HTTP"
-                                      << "header :" << header
-                                      << "value :"  << value;
+                            //qDebug () << "Debug : HTTP"
+                            //          << "header :" << header
+                            //          << "value :"  << value;
                             m_currentRequest->addHeader (header, value);
                             if (header == QtHttpHeader::ContentLength) {
                                 int  len = -1;
@@ -94,7 +94,7 @@ void QtHttpClientWrapper::onClientDataReceived () {
                         }
                     }
                     else { // end of headers
-                        qDebug () << "Debug : HTTP end of headers";
+                        //qDebug () << "Debug : HTTP end of headers";
                         if (m_currentRequest->getHeader (QtHttpHeader::ContentLength).toInt () > 0) {
                             m_parsingStatus = AwaitingContent;
                         }
@@ -106,11 +106,11 @@ void QtHttpClientWrapper::onClientDataReceived () {
                 }
                 case AwaitingContent: { // raw data × N (until EOF ??)
                     m_currentRequest->appendRawData (line);
-                    qDebug () << "Debug : HTTP"
-                              << "content :" << m_currentRequest->getRawData ().toHex ()
-                              << "size :"    << m_currentRequest->getRawData ().size  ();
+                    //qDebug () << "Debug : HTTP"
+                    //          << "content :" << m_currentRequest->getRawData ().toHex ()
+                    //          << "size :"    << m_currentRequest->getRawData ().size  ();
                     if (m_currentRequest->getRawDataSize () == m_currentRequest->getHeader (QtHttpHeader::ContentLength).toInt ()) {
-                        qDebug () << "Debug : HTTP end of content";
+                        //qDebug () << "Debug : HTTP end of content";
                         m_parsingStatus = RequestParsed;
                     }
                     break;
@@ -169,7 +169,7 @@ QtHttpClientWrapper::ParsingStatus QtHttpClientWrapper::sendReplyToClient (QtHtt
     // content raw data
     data.append (reply->getRawData ());
     // write to socket
-    qDebug () << "Debug: reply=" << data;
+    //qDebug () << "Debug: reply=" << data;
     m_sockClient->write (data);
     m_sockClient->flush ();
     if (m_currentRequest) {

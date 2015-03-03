@@ -28,8 +28,12 @@ Project {
         name: "qt5-http-server-test-app";
         targetName: "Qt5HttpServerTestApp";
         files: [
-            "main.cpp"
-        ];
+            "ExampleRequestParsing.cpp",
+            "ExampleRequestParsing.h",
+            "ExampleStaticFileServing.cpp",
+            "ExampleStaticFileServing.h",
+            "main.cpp",
+        ]
 
         Depends {
             name: "cpp";
