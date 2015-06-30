@@ -30,6 +30,7 @@ public:
     static const QByteArray & Location;
     static const QByteArray & SetCookie;
     static const QByteArray & TransferEncoding;
+    static const QByteArray & ContentDisposition;
 };
 
 #endif // QTHTTPHEADER_H
