@@ -17,27 +17,27 @@ QtHttpReply::QtHttpReply (QtHttpServer * parent)
     addHeader (QtHttpHeader::Server, m_serverHandle->getServerName ().toUtf8 ());
 }
 
-int QtHttpReply::getRawDataSize () const {
+int QtHttpReply::getRawDataSize (void) const {
     return m_data.size ();
 }
 
-bool QtHttpReply::useChunked () const {
+bool QtHttpReply::useChunked (void) const {
     return m_useChunked;
 }
 
-QtHttpReply::StatusCode QtHttpReply::getStatusCode () const {
+QtHttpReply::StatusCode QtHttpReply::getStatusCode (void) const {
     return m_statusCode;
 }
 
-QByteArray QtHttpReply::getRawData () const {
+QByteArray QtHttpReply::getRawData (void) const {
     return m_data;
 }
 
-QList<QByteArray> QtHttpReply::getHeadersList () const {
+QList<QByteArray> QtHttpReply::getHeadersList (void) const {
     return m_headersHash.keys ();
 }
 
-QByteArray QtHttpReply::getHeader (QByteArray header) const {
+QByteArray QtHttpReply::getHeader (const QByteArray & header) const {
     return m_headersHash.value (header, QByteArray ());
 }
 
@@ -59,11 +59,11 @@ void QtHttpReply::setStatusCode (QtHttpReply::StatusCode statusCode) {
     m_statusCode = statusCode;
 }
 
-void QtHttpReply::appendRawData (QByteArray data) {
+void QtHttpReply::appendRawData (const QByteArray & data) {
     m_data.append (data);
 }
 
-void QtHttpReply::addHeader (QByteArray header, QByteArray value) {
+void QtHttpReply::addHeader (const QByteArray & header, const QByteArray & value) {
     QByteArray key = header.trimmed ();
     if (!key.isEmpty ()) {
         m_headersHash.insert (key, value);

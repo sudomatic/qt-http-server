@@ -7,13 +7,14 @@
 class QtHttpRequest;
 class QtHttpReply;
 class QtHttpServer;
+
 class QtHttpClientWrapper : public QObject {
     Q_OBJECT
 
 public:
     explicit QtHttpClientWrapper (QTcpSocket * sock, QtHttpServer * parent);
 
-    QString getGuid () const;
+    QString getGuid (void) const;
 
     enum ParsingStatus {
         ParsingError    = -1,
@@ -24,14 +25,14 @@ public:
     };
 
 private slots:
-    void onClientDataReceived ();
+    void onClientDataReceived (void);
 
 protected:
     ParsingStatus sendReplyToClient (QtHttpReply * reply);
 
 protected slots:
-    void onReplySendHeadersRequested ();
-    void onReplySendDataRequested    ();
+    void onReplySendHeadersRequested (void);
+    void onReplySendDataRequested    (void);
 
 private:
     QString         m_guid;

@@ -16,15 +16,15 @@ QtHttpServer::QtHttpServer (QObject * parent)
     connect (m_sockServer, &QTcpServer::newConnection, this, &QtHttpServer::onClientConnected);
 }
 
-QtHttpServer::~QtHttpServer () {
+QtHttpServer::~QtHttpServer (void) {
     stop ();
 }
 
-const QString QtHttpServer::getServerName () const {
+const QString QtHttpServer::getServerName (void) const {
     return m_serverName;
 }
 
-const QString QtHttpServer::getHttpVersion () {
+const QString QtHttpServer::getHttpVersion (void) {
     return s_httpVersion;
 }
 
@@ -37,18 +37,18 @@ void QtHttpServer::start (quint16 port) {
     }
 }
 
-void QtHttpServer::stop () {
+void QtHttpServer::stop (void) {
     if (m_sockServer->isListening ()) {
         m_sockServer->close ();
         emit stopped ();
     }
 }
 
-void QtHttpServer::setServerName (QString serverName) {
+void QtHttpServer::setServerName (const QString & serverName) {
     m_serverName = serverName;
 }
 
-void QtHttpServer::onClientConnected () {
+void QtHttpServer::onClientConnected (void) {
     while (m_sockServer->hasPendingConnections ()) {
         QTcpSocket * sockClient = m_sockServer->nextPendingConnection ();
         QtHttpClientWrapper * wrapper = new QtHttpClientWrapper (sockClient, this);
@@ -58,10 +58,10 @@ void QtHttpServer::onClientConnected () {
     }
 }
 
-void QtHttpServer::onClientDisconnected () {
+void QtHttpServer::onClientDisconnected (void) {
     QTcpSocket * sockClient = qobject_cast<QTcpSocket *> (sender ());
     if (sockClient) {
-        QtHttpClientWrapper * wrapper = m_socksClientsHash.value (sockClient, NULL);
+        QtHttpClientWrapper * wrapper = m_socksClientsHash.value (sockClient, Q_NULLPTR);
         if (wrapper) {
             emit clientDisconnected (wrapper->getGuid ());
             wrapper->deleteLater ();

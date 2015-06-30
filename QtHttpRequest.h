@@ -13,19 +13,19 @@ class QtHttpRequest : public QObject {
 public:
     explicit QtHttpRequest (QtHttpServer * parent);
 
-    int               getRawDataSize   () const;
-    QUrl              getUrl           () const;
-    QString           getCommand       () const;
-    QByteArray        getRawData       () const;
-    QList<QByteArray> getHeadersList   () const;
+    int               getRawDataSize   (void) const;
+    QUrl              getUrl           (void) const;
+    QString           getCommand       (void) const;
+    QByteArray        getRawData       (void) const;
+    QList<QByteArray> getHeadersList   (void) const;
 
-    QByteArray getHeader (QByteArray header) const;
+    QByteArray getHeader (const QByteArray & header) const;
 
 public slots:
-    void setUrl           (QUrl url);
-    void setCommand       (QString command);
-    void addHeader        (QByteArray header, QByteArray value);
-    void appendRawData    (QByteArray data);
+    void setUrl        (const QUrl & url);
+    void setCommand    (const QString & command);
+    void addHeader     (const QByteArray & header, const QByteArray & value);
+    void appendRawData (const QByteArray & data);
 
 private:
     QUrl                          m_url;

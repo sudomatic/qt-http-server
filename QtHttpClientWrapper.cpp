@@ -27,13 +27,13 @@ QtHttpClientWrapper::QtHttpClientWrapper (QTcpSocket * sock, QtHttpServer * pare
     , m_guid           (hashFromPointerAddress (sock))
     , m_parsingStatus  (AwaitingRequest)
     , m_sockClient     (sock)
-    , m_currentRequest (NULL)
+    , m_currentRequest (Q_NULLPTR)
     , m_serverHandle   (parent)
 {
     connect (m_sockClient, &QTcpSocket::readyRead, this, &QtHttpClientWrapper::onClientDataReceived);
 }
 
-QString QtHttpClientWrapper::getGuid () const {
+QString QtHttpClientWrapper::getGuid (void) const {
     return m_guid;
 }
 
@@ -144,55 +144,52 @@ void QtHttpClientWrapper::onClientDataReceived () {
     }
 }
 
-inline QByteArray createHeaderLine (QByteArray header, QByteArray value) {
-    QByteArray ret;
-    ret += header;
-    ret += COLON;
-    ret += SPACE;
-    ret += value;
-    ret += CRLF;
-    return ret;
-}
-
-void QtHttpClientWrapper::onReplySendHeadersRequested () {
+void QtHttpClientWrapper::onReplySendHeadersRequested (void) {
     QtHttpReply * reply = qobject_cast<QtHttpReply *> (sender ());
-    QByteArray data;
-    // HTTP Version + Status Code + Status Msg
-    data.append (m_serverHandle->getHttpVersion ());
-    data.append (SPACE);
-    data.append (QByteArray::number (reply->getStatusCode ()));
-    data.append (SPACE);
-    data.append (QtHttpReply::getStatusTextForCode (reply->getStatusCode ()));
-    data.append (CRLF);
-    if (reply->useChunked ()) {
-        reply->addHeader (QtHttpHeader::TransferEncoding, "chunked");
-    }
-    else {
-        reply->addHeader (QtHttpHeader::ContentLength, QByteArray::number (reply->getRawDataSize ()));
-    }
-    // Header name: header value
-    foreach (QByteArray header, reply->getHeadersList ()) {
-        data.append (createHeaderLine (header, reply->getHeader (header)));
-    }
-    // empty line
-    data.append (CRLF);
-    m_sockClient->write (data);
-    m_sockClient->flush ();
-}
-
-
-void QtHttpClientWrapper::onReplySendDataRequested () {
-    QtHttpReply * reply = qobject_cast<QtHttpReply *> (sender ());
-    // content raw data
-    QByteArray data = reply->getRawData ();
-    if (reply->useChunked ()) {
-        data.prepend (QByteArray::number (data.size (), 16) % CRLF);
+    if (reply != Q_NULLPTR) {
+        QByteArray data;
+        // HTTP Version + Status Code + Status Msg
+        data.append (m_serverHandle->getHttpVersion ());
+        data.append (SPACE);
+        data.append (QByteArray::number (reply->getStatusCode ()));
+        data.append (SPACE);
+        data.append (QtHttpReply::getStatusTextForCode (reply->getStatusCode ()));
         data.append (CRLF);
-        reply->resetRawData ();
+        if (reply->useChunked ()) {
+            reply->addHeader (QtHttpHeader::TransferEncoding, "chunked");
+        }
+        else {
+            reply->addHeader (QtHttpHeader::ContentLength, QByteArray::number (reply->getRawDataSize ()));
+        }
+        // Header name: header value
+        foreach (QByteArray header, reply->getHeadersList ()) {
+            data.append (header);
+            data.append (COLON);
+            data.append (SPACE);
+            data.append (reply->getHeader (header));
+            data.append (CRLF);
+        }
+        // empty line
+        data.append (CRLF);
+        m_sockClient->write (data);
+        m_sockClient->flush ();
     }
-    // write to socket
-    m_sockClient->write (data);
-    m_sockClient->flush ();
+}
+
+void QtHttpClientWrapper::onReplySendDataRequested (void) {
+    QtHttpReply * reply = qobject_cast<QtHttpReply *> (sender ());
+    if (reply != Q_NULLPTR) {
+        // content raw data
+        QByteArray data = reply->getRawData ();
+        if (reply->useChunked ()) {
+            data.prepend (QByteArray::number (data.size (), 16) % CRLF);
+            data.append (CRLF);
+            reply->resetRawData ();
+        }
+        // write to socket
+        m_sockClient->write (data);
+        m_sockClient->flush ();
+    }
 }
 
 QtHttpClientWrapper::ParsingStatus QtHttpClientWrapper::sendReplyToClient (QtHttpReply * reply) {
@@ -211,11 +208,12 @@ QtHttpClientWrapper::ParsingStatus QtHttpClientWrapper::sendReplyToClient (QtHtt
         m_sockClient->flush ();
     }
     if (m_currentRequest) {
-        if (m_currentRequest->getHeader (QtHttpHeader::Connection).toLower () == QByteArrayLiteral ("close")) { // must close connection after this request
+        if (m_currentRequest->getHeader (QtHttpHeader::Connection).toLower () == QByteArrayLiteral ("close")) {
+            // must close connection after this request
             m_sockClient->close ();
         }
         m_currentRequest->deleteLater ();
-        m_currentRequest = NULL;
+        m_currentRequest = Q_NULLPTR;
     }
     return AwaitingRequest;
 }

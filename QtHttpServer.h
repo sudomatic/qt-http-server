@@ -9,34 +9,35 @@
 class QtHttpRequest;
 class QtHttpReply;
 class QtHttpClientWrapper;
+
 class QtHttpServer : public QObject {
     Q_OBJECT
 
 public:
-    explicit QtHttpServer     (QObject * parent = NULL);
-    virtual ~QtHttpServer     ();
+    explicit QtHttpServer     (QObject * parent = Q_NULLPTR);
+    virtual ~QtHttpServer     (void);
 
-    const QString getServerName () const;
+    const QString getServerName (void) const;
 
-    static const QString getHttpVersion ();
+    static const QString getHttpVersion (void);
 
 public slots:
     void start                (quint16 port = 0);
-    void stop                 ();
-    void setServerName        (QString serverName);
+    void stop                 (void);
+    void setServerName        (const QString & serverName);
 
 signals:
     void started              (quint16 port);
-    void stopped              ();
-    void error                (QString msg);
-    void clientConnected      (QString guid);
-    void clientDisconnected   (QString guid);
+    void stopped              (void);
+    void error                (const QString & msg);
+    void clientConnected      (const QString & guid);
+    void clientDisconnected   (const QString & guid);
     void requestNeedsReply    (QtHttpRequest * request,
                                QtHttpReply   * reply);
 
 private slots:
-    void onClientConnected    ();
-    void onClientDisconnected ();
+    void onClientConnected    (void);
+    void onClientDisconnected (void);
 
 private:
     QString                                    m_serverName;

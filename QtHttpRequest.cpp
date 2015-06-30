@@ -15,46 +15,46 @@ QtHttpRequest::QtHttpRequest (QtHttpServer * parent)
     addHeader (QtHttpHeader::Connection,    QByteArrayLiteral ("Keep-Alive"));
 }
 
-QUrl QtHttpRequest::getUrl () const {
+QUrl QtHttpRequest::getUrl (void) const {
     return m_url;
 }
 
-QString QtHttpRequest::getCommand () const {
+QString QtHttpRequest::getCommand (void) const {
     return m_command;
 }
 
-int QtHttpRequest::getRawDataSize () const {
+int QtHttpRequest::getRawDataSize (void) const {
     return m_data.size ();
 }
 
 
-QByteArray QtHttpRequest::getRawData () const {
+QByteArray QtHttpRequest::getRawData (void) const {
     return m_data;
 }
 
-QList<QByteArray> QtHttpRequest::getHeadersList () const {
+QList<QByteArray> QtHttpRequest::getHeadersList (void) const {
     return m_headersHash.keys ();
 }
 
-QByteArray QtHttpRequest::getHeader (QByteArray header) const {
+QByteArray QtHttpRequest::getHeader (const QByteArray & header) const {
     return m_headersHash.value (header, QByteArray ());
 }
 
-void QtHttpRequest::setUrl (QUrl url) {
+void QtHttpRequest::setUrl (const QUrl & url) {
     m_url = url;
 }
 
-void QtHttpRequest::setCommand (QString command) {
+void QtHttpRequest::setCommand (const QString & command) {
     m_command = command;
 }
 
-void QtHttpRequest::addHeader (QByteArray header, QByteArray value) {
+void QtHttpRequest::addHeader (const QByteArray & header, const QByteArray & value) {
     QByteArray key = header.trimmed ();
     if (!key.isEmpty ()) {
         m_headersHash.insert (key, value);
     }
 }
 
-void QtHttpRequest::appendRawData (QByteArray data) {
+void QtHttpRequest::appendRawData (const QByteArray & data) {
     m_data.append (data);
 }
