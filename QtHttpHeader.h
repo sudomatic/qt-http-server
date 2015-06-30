@@ -29,6 +29,7 @@ public:
     static const QByteArray LastModified;
     static const QByteArray Location;
     static const QByteArray SetCookie;
+    static const QByteArray TransferEncoding;
 };
 
 #endif // QTHTTPHEADER_H

@@ -29,6 +29,10 @@ private slots:
 protected:
     ParsingStatus sendReplyToClient (QtHttpReply * reply);
 
+protected slots:
+    void onReplySendHeadersRequested ();
+    void onReplySendDataRequested    ();
+
 private:
     QString         m_guid;
     ParsingStatus   m_parsingStatus;

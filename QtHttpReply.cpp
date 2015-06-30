@@ -7,6 +7,7 @@
 
 QtHttpReply::QtHttpReply (QtHttpServer * parent)
     : QObject        (parent)
+    , m_useChunked   (false)
     , m_statusCode   (Ok)
     , m_data         (QByteArray ())
     , m_serverHandle (parent)
@@ -18,6 +19,10 @@ QtHttpReply::QtHttpReply (QtHttpServer * parent)
 
 int QtHttpReply::getRawDataSize () const {
     return m_data.size ();
+}
+
+bool QtHttpReply::useChunked () const {
+    return m_useChunked;
 }
 
 QtHttpReply::StatusCode QtHttpReply::getStatusCode () const {
@@ -46,6 +51,10 @@ const QByteArray QtHttpReply::getStatusTextForCode (QtHttpReply::StatusCode stat
     }
 }
 
+void QtHttpReply::setUseChunked (bool chunked){
+    m_useChunked = chunked;
+}
+
 void QtHttpReply::setStatusCode (QtHttpReply::StatusCode statusCode) {
     m_statusCode = statusCode;
 }
@@ -59,4 +68,8 @@ void QtHttpReply::addHeader (QByteArray header, QByteArray value) {
     if (!key.isEmpty ()) {
         m_headersHash.insert (key, value);
     }
+}
+
+void QtHttpReply::resetRawData (void) {
+    m_data.clear ();
 }

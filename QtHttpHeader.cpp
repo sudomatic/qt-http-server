@@ -25,3 +25,4 @@ const QByteArray QtHttpHeader::Expires            = QByteArrayLiteral ("Expires"
 const QByteArray QtHttpHeader::LastModified       = QByteArrayLiteral ("Last-Modified");
 const QByteArray QtHttpHeader::Location           = QByteArrayLiteral ("Location");
 const QByteArray QtHttpHeader::SetCookie          = QByteArrayLiteral ("Set-Cookie");
+const QByteArray QtHttpHeader::TransferEncoding   = QByteArrayLiteral ("Transfer-Encoding");

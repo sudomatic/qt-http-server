@@ -7,6 +7,7 @@
 
 #include <QCryptographicHash>
 #include <QDateTime>
+#include <QStringBuilder>
 
 #define CRLF  QByteArrayLiteral ("\r\n")
 #define SPACE char (' ')
@@ -120,8 +121,11 @@ void QtHttpClientWrapper::onClientDataReceived () {
             switch (m_parsingStatus) { // handle parsing status end/error
                 case RequestParsed: { // a valid request has ben fully parsed
                     QtHttpReply reply (m_serverHandle);
+                    connect (&reply, &QtHttpReply::requestSendHeaders,
+                             this, &QtHttpClientWrapper::onReplySendHeadersRequested);
+                    connect (&reply, &QtHttpReply::requestSendData,
+                             this, &QtHttpClientWrapper::onReplySendDataRequested);
                     emit m_serverHandle->requestNeedsReply (m_currentRequest, &reply); // allow app to handle request
-                    reply.appendRawData (CRLF);
                     m_parsingStatus = sendReplyToClient (&reply);
                     break;
                 }
@@ -150,7 +154,8 @@ inline QByteArray createHeaderLine (QByteArray header, QByteArray value) {
     return ret;
 }
 
-QtHttpClientWrapper::ParsingStatus QtHttpClientWrapper::sendReplyToClient (QtHttpReply * reply) {
+void QtHttpClientWrapper::onReplySendHeadersRequested () {
+    QtHttpReply * reply = qobject_cast<QtHttpReply *> (sender ());
     QByteArray data;
     // HTTP Version + Status Code + Status Msg
     data.append (m_serverHandle->getHttpVersion ());
@@ -159,19 +164,52 @@ QtHttpClientWrapper::ParsingStatus QtHttpClientWrapper::sendReplyToClient (QtHtt
     data.append (SPACE);
     data.append (QtHttpReply::getStatusTextForCode (reply->getStatusCode ()));
     data.append (CRLF);
+    if (reply->useChunked ()) {
+        reply->addHeader (QtHttpHeader::TransferEncoding, "chunked");
+    }
+    else {
+        reply->addHeader (QtHttpHeader::ContentLength, QByteArray::number (reply->getRawDataSize ()));
+    }
     // Header name: header value
-    reply->addHeader (QtHttpHeader::ContentLength, QByteArray::number (reply->getRawDataSize ()));
     foreach (QByteArray header, reply->getHeadersList ()) {
         data.append (createHeaderLine (header, reply->getHeader (header)));
     }
     // empty line
     data.append (CRLF);
-    // content raw data
-    data.append (reply->getRawData ());
-    // write to socket
-    //qDebug () << "Debug: reply=" << data;
     m_sockClient->write (data);
     m_sockClient->flush ();
+}
+
+
+void QtHttpClientWrapper::onReplySendDataRequested () {
+    QtHttpReply * reply = qobject_cast<QtHttpReply *> (sender ());
+    // content raw data
+    QByteArray data = reply->getRawData ();
+    if (reply->useChunked ()) {
+        data.prepend (QByteArray::number (data.size (), 16) % CRLF);
+        data.append (CRLF);
+        reply->resetRawData ();
+    }
+    // write to socket
+    m_sockClient->write (data);
+    m_sockClient->flush ();
+}
+
+QtHttpClientWrapper::ParsingStatus QtHttpClientWrapper::sendReplyToClient (QtHttpReply * reply) {
+    if (!reply->useChunked ()) {
+        reply->appendRawData (CRLF);
+        // force send all headers
+        reply->requestSendHeaders ();
+        // force send all data
+        reply->requestSendData ();
+    }
+    else {
+        // last chunk
+        QByteArray data = ("0" % CRLF % CRLF);
+        data.append (reply->getRawData ());
+        m_sockClient->write (data);
+        m_sockClient->flush ();
+    }
     if (m_currentRequest) {
         if (m_currentRequest->getHeader (QtHttpHeader::Connection).toLower () == QByteArrayLiteral ("close")) { // must close connection after this request
             m_sockClient->close ();
