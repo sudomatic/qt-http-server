@@ -4,9 +4,12 @@
 #include "QtHttpReply.h"
 #include "QtHttpClientWrapper.h"
 
+#include <QTcpServer>
+#include <QTcpSocket>
+#include <QHostAddress>
 #include <QDebug>
 
-const QString QtHttpServer::s_httpVersion = QStringLiteral ("HTTP/1.1");
+const QString & QtHttpServer::HTTP_VERSION = QStringLiteral ("HTTP/1.1");
 
 QtHttpServer::QtHttpServer (QObject * parent)
     : QObject      (parent)
@@ -24,16 +27,12 @@ const QString QtHttpServer::getServerName (void) const {
     return m_serverName;
 }
 
-const QString QtHttpServer::getHttpVersion (void) {
-    return s_httpVersion;
-}
-
 void QtHttpServer::start (quint16 port) {
     if (m_sockServer->listen (QHostAddress::Any, port)) {
         emit started (m_sockServer->serverPort ());
     }
     else {
-        emit error   (m_sockServer->errorString ());
+        emit error (m_sockServer->errorString ());
     }
 }
 

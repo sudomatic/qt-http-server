@@ -6,8 +6,10 @@
 #include "QtHttpHeader.h"
 
 #include <QCryptographicHash>
-#include <QDateTime>
+#include <QTcpSocket>
 #include <QStringBuilder>
+#include <QStringList>
+#include <QDateTime>
 
 #define CRLF  QByteArrayLiteral ("\r\n")
 #define SPACE char (' ')
@@ -49,7 +51,7 @@ void QtHttpClientWrapper::onClientDataReceived () {
                         QString command = parts.at (0);
                         QString url     = parts.at (1);
                         QString version = parts.at (2);
-                        if (version == m_serverHandle->getHttpVersion ()) {
+                        if (version == QtHttpServer::HTTP_VERSION) {
                             //qDebug () << "Debug : HTTP"
                             //          << "command :" << command
                             //          << "url :"     << url
@@ -149,7 +151,7 @@ void QtHttpClientWrapper::onReplySendHeadersRequested (void) {
     if (reply != Q_NULLPTR) {
         QByteArray data;
         // HTTP Version + Status Code + Status Msg
-        data.append (m_serverHandle->getHttpVersion ());
+        data.append (QtHttpServer::HTTP_VERSION);
         data.append (SPACE);
         data.append (QByteArray::number (reply->getStatusCode ()));
         data.append (SPACE);

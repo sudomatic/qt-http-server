@@ -1,6 +1,8 @@
 
 #include "QtHttpHeader.h"
 
+#include <QByteArray>
+
 const QByteArray & QtHttpHeader::Server             = QByteArrayLiteral ("Server");
 const QByteArray & QtHttpHeader::Date               = QByteArrayLiteral ("Date");
 const QByteArray & QtHttpHeader::Host               = QByteArrayLiteral ("Host");

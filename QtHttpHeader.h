@@ -1,7 +1,7 @@
 #ifndef QTHTTPHEADER_H
 #define QTHTTPHEADER_H
 
-#include <QByteArray>
+class QByteArray;
 
 class QtHttpHeader {
 public:

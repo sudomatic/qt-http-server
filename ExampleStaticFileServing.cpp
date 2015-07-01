@@ -43,7 +43,6 @@ void ExampleStaticFileServing::onServerError (QString msg) {
 
 static inline void printErrorToReply (QtHttpReply * reply, QString errorMessage) {
     reply->addHeader ("Content-Type", QByteArrayLiteral ("text/plain"));
-    reply->addHeader ("Content-Length", QByteArray::number (errorMessage.size ()));
     reply->appendRawData (errorMessage.toLocal8Bit ());
 }
 
@@ -57,7 +56,6 @@ void ExampleStaticFileServing::onRequestNeedsReply (QtHttpRequest * request, QtH
             if (file.open (QFile::ReadOnly)) {
                 QByteArray data = file.readAll ();
                 reply->addHeader ("Content-Type", mime.name ().toLocal8Bit ());
-                reply->addHeader ("Content-Length", QByteArray::number (data.size ()));
                 reply->appendRawData (data);
                 file.close ();
             }

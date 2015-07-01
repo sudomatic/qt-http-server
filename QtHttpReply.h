@@ -2,9 +2,12 @@
 #define QTHTTPREPLY_H
 
 #include <QObject>
+#include <QByteArray>
 #include <QHash>
+#include <QList>
 
 class QtHttpServer;
+
 class QtHttpReply : public QObject {
     Q_OBJECT
     Q_ENUMS (StatusCode)
@@ -19,11 +22,11 @@ public:
         NotFound   = 404
     };
 
-    int               getRawDataSize  (void) const;
-    bool              useChunked      (void) const;
-    StatusCode        getStatusCode   (void) const;
-    QByteArray        getRawData      (void) const;
-    QList<QByteArray> getHeadersList  (void) const;
+    int               getRawDataSize (void) const;
+    bool              useChunked     (void) const;
+    StatusCode        getStatusCode  (void) const;
+    QByteArray        getRawData     (void) const;
+    QList<QByteArray> getHeadersList (void) const;
 
     QByteArray getHeader (const QByteArray & header) const;
 
@@ -44,7 +47,7 @@ private:
     bool                          m_useChunked;
     StatusCode                    m_statusCode;
     QByteArray                    m_data;
-    QtHttpServer                * m_serverHandle;
+    QtHttpServer *                m_serverHandle;
     QHash<QByteArray, QByteArray> m_headersHash;
 };
 

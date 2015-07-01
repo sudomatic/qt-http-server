@@ -3,10 +3,13 @@ import qbs 1.0;
 Project {
     name: "The Qt5 HTTP Server";
 
-    StaticLibrary {
+    property bool buildAsSharedLib : true;
+
+    Product {
         name: "qt5-http-server-lib";
+        type: (project.buildAsSharedLib ? "dynamiclibrary" : "staticlibrary");
         targetName: "Qt5HttpServer";
-        cpp.includePaths: ["."];
+        cpp.includePaths: ".";
 
         Depends {
             name: "cpp";
@@ -23,17 +26,14 @@ Project {
             name: "C++ Headers";
             files: ["Qt*.h"]
         }
+        Group {
+            qbs.install: true;
+            fileTagsFilter: (project.buildAsSharedLib ? "dynamiclibrary" : "staticlibrary");
+        }
     }
     Application {
         name: "qt5-http-server-test-app";
         targetName: "Qt5HttpServerTestApp";
-        files: [
-            "ExampleRequestParsing.cpp",
-            "ExampleRequestParsing.h",
-            "ExampleStaticFileServing.cpp",
-            "ExampleStaticFileServing.h",
-            "main.cpp",
-        ]
 
         Depends {
             name: "cpp";
@@ -44,6 +44,19 @@ Project {
         }
         Depends {
             name: "qt5-http-server-lib";
+        }
+
+        Group {
+            name: "C++ Sources";
+            files: ["Example*.cpp", "main.cpp"];
+        }
+        Group {
+            name: "C++ Headers";
+            files: ["Example*.h"]
+        }
+        Group {
+            qbs.install: true;
+            fileTagsFilter: "application";
         }
     }
 }

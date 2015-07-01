@@ -2,7 +2,9 @@
 #define QTHTTPCLIENTWRAPPER_H
 
 #include <QObject>
-#include <QTcpSocket>
+#include <QString>
+
+class QTcpSocket;
 
 class QtHttpRequest;
 class QtHttpReply;
