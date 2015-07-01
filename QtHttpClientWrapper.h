@@ -16,7 +16,9 @@ class QtHttpClientWrapper : public QObject {
 public:
     explicit QtHttpClientWrapper (QTcpSocket * sock, QtHttpServer * parent);
 
-    QString getGuid (void) const;
+    static const char SPACE = ' ';
+    static const char COLON = ':';
+    static const QByteArray & CRLF;
 
     enum ParsingStatus {
         ParsingError    = -1,
@@ -25,6 +27,8 @@ public:
         AwaitingContent =  2,
         RequestParsed   =  3
     };
+
+    QString getGuid (void);
 
 private slots:
     void onClientDataReceived (void);

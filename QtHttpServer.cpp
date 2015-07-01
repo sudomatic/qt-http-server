@@ -19,10 +19,6 @@ QtHttpServer::QtHttpServer (QObject * parent)
     connect (m_sockServer, &QTcpServer::newConnection, this, &QtHttpServer::onClientConnected);
 }
 
-QtHttpServer::~QtHttpServer (void) {
-    stop ();
-}
-
 const QString QtHttpServer::getServerName (void) const {
     return m_serverName;
 }

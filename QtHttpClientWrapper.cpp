@@ -11,22 +11,11 @@
 #include <QStringList>
 #include <QDateTime>
 
-#define CRLF  QByteArrayLiteral ("\r\n")
-#define SPACE char (' ')
-#define COLON char (':')
-
-inline static const QString hashFromPointerAddress (void * pointer) {
-    return QString::fromLocal8Bit (
-                QCryptographicHash::hash (
-                    QByteArray::number ((quint64) (pointer)),
-                    QCryptographicHash::Md5
-                    ).toHex ()
-                );
-}
+const QByteArray & QtHttpClientWrapper::CRLF = QByteArrayLiteral ("\r\n");
 
 QtHttpClientWrapper::QtHttpClientWrapper (QTcpSocket * sock, QtHttpServer * parent)
     : QObject          (parent)
-    , m_guid           (hashFromPointerAddress (sock))
+    , m_guid           ("")
     , m_parsingStatus  (AwaitingRequest)
     , m_sockClient     (sock)
     , m_currentRequest (Q_NULLPTR)
@@ -35,12 +24,20 @@ QtHttpClientWrapper::QtHttpClientWrapper (QTcpSocket * sock, QtHttpServer * pare
     connect (m_sockClient, &QTcpSocket::readyRead, this, &QtHttpClientWrapper::onClientDataReceived);
 }
 
-QString QtHttpClientWrapper::getGuid (void) const {
+QString QtHttpClientWrapper::getGuid (void) {
+    if (m_guid.isEmpty ()) {
+        m_guid = QString::fromLocal8Bit (
+                     QCryptographicHash::hash (
+                         QByteArray::number ((quint64) (this)),
+                         QCryptographicHash::Md5
+                         ).toHex ()
+                     );
+    }
     return m_guid;
 }
 
-void QtHttpClientWrapper::onClientDataReceived () {
-    if (m_sockClient) {
+void QtHttpClientWrapper::onClientDataReceived (void) {
+    if (m_sockClient != Q_NULLPTR) {
         while (m_sockClient->canReadLine ()) {
             QByteArray line = m_sockClient->readLine ().trimmed ();
             switch (m_parsingStatus) { // handle parsing steps
@@ -157,14 +154,16 @@ void QtHttpClientWrapper::onReplySendHeadersRequested (void) {
         data.append (SPACE);
         data.append (QtHttpReply::getStatusTextForCode (reply->getStatusCode ()));
         data.append (CRLF);
+        // Header name: header value
         if (reply->useChunked ()) {
-            reply->addHeader (QtHttpHeader::TransferEncoding, "chunked");
+            static const QByteArray & CHUNKED = QByteArrayLiteral ("chunked");
+            reply->addHeader (QtHttpHeader::TransferEncoding, CHUNKED);
         }
         else {
             reply->addHeader (QtHttpHeader::ContentLength, QByteArray::number (reply->getRawDataSize ()));
         }
-        // Header name: header value
-        foreach (QByteArray header, reply->getHeadersList ()) {
+        const QList<QByteArray> & headersList = reply->getHeadersList ();
+        foreach (const QByteArray & header, headersList) {
             data.append (header);
             data.append (COLON);
             data.append (SPACE);
@@ -195,27 +194,27 @@ void QtHttpClientWrapper::onReplySendDataRequested (void) {
 }
 
 QtHttpClientWrapper::ParsingStatus QtHttpClientWrapper::sendReplyToClient (QtHttpReply * reply) {
-    if (!reply->useChunked ()) {
-        reply->appendRawData (CRLF);
-        // force send all headers
-        reply->requestSendHeaders ();
-        // force send all data
-        reply->requestSendData ();
-    }
-    else {
-        // last chunk
-        QByteArray data = ("0" % CRLF % CRLF);
-        data.append (reply->getRawData ());
-        m_sockClient->write (data);
-        m_sockClient->flush ();
-    }
-    if (m_currentRequest) {
-        if (m_currentRequest->getHeader (QtHttpHeader::Connection).toLower () == QByteArrayLiteral ("close")) {
-            // must close connection after this request
-            m_sockClient->close ();
+    if (reply != Q_NULLPTR) {
+        if (!reply->useChunked ()) {
+            reply->appendRawData (CRLF);
+            // send all headers and all data in one shot
+            reply->requestSendHeaders ();
+            reply->requestSendData ();
         }
-        m_currentRequest->deleteLater ();
-        m_currentRequest = Q_NULLPTR;
+        else {
+            // last chunk
+            m_sockClient->write ("0" % CRLF % CRLF);
+            m_sockClient->flush ();
+        }
+        if (m_currentRequest != Q_NULLPTR) {
+            static const QByteArray & CLOSE = QByteArrayLiteral ("close");
+            if (m_currentRequest->getHeader (QtHttpHeader::Connection).toLower () == CLOSE) {
+                // must close connection after this request
+                m_sockClient->close ();
+            }
+            m_currentRequest->deleteLater ();
+            m_currentRequest = Q_NULLPTR;
+        }
     }
     return AwaitingRequest;
 }

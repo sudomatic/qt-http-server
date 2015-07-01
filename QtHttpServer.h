@@ -17,7 +17,6 @@ class QtHttpServer : public QObject {
 
 public:
     explicit QtHttpServer (QObject * parent = Q_NULLPTR);
-    virtual ~QtHttpServer (void);
 
     static const QString & HTTP_VERSION;
 

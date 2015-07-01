@@ -1,4 +1,4 @@
-import qbs 1.0;
+import qbs;
 
 Project {
     name: "The Qt5 HTTP Server";
@@ -20,11 +20,11 @@ Project {
         }
         Group {
             name: "C++ Sources";
-            files: ["Qt*.cpp"];
+            files: ["QtHttp*.cpp"];
         }
         Group {
             name: "C++ Headers";
-            files: ["Qt*.h"]
+            files: ["QtHttp*.h"]
         }
         Group {
             qbs.install: true;
