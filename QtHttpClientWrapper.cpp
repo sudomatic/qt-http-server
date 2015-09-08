@@ -38,11 +38,11 @@ QString QtHttpClientWrapper::getGuid (void) {
 
 void QtHttpClientWrapper::onClientDataReceived (void) {
     if (m_sockClient != Q_NULLPTR) {
-        while (m_sockClient->canReadLine ()) {
-            QByteArray line = m_sockClient->readLine ().trimmed ();
+        while (m_sockClient->bytesAvailable ()) {
+            QByteArray line = m_sockClient->readLine ();
             switch (m_parsingStatus) { // handle parsing steps
                 case AwaitingRequest: { // "command url version" × 1
-                    QString str = QString::fromUtf8 (line);
+                    QString str = QString::fromUtf8 (line).trimmed ();
                     QStringList parts = str.split (SPACE, QString::SkipEmptyParts);
                     if (parts.size () == 3) {
                         QString command = parts.at (0);
@@ -70,11 +70,12 @@ void QtHttpClientWrapper::onClientDataReceived (void) {
                     break;
                 }
                 case AwaitingHeaders: { // "header: value" × N (until empty line)
-                    if (!line.isEmpty ()) { // parse headers
-                        int pos = line.indexOf (COLON);
+                    QByteArray raw = line.trimmed ();
+                    if (!raw.isEmpty ()) { // parse headers
+                        int pos = raw.indexOf (COLON);
                         if (pos > 0) {
-                            QByteArray header = line.left (pos).trimmed ();
-                            QByteArray value  = line.mid  (pos +1).trimmed ();
+                            QByteArray header = raw.left (pos).trimmed ();
+                            QByteArray value  = raw.mid  (pos +1).trimmed ();
                             //qDebug () << "Debug : HTTP"
                             //          << "header :" << header
                             //          << "value :"  << value;
