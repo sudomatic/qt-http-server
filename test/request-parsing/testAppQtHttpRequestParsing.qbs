@@ -1,8 +1,8 @@
 import qbs;
 
 Application {
-    name: "qt5-http-server-test-app";
-    targetName: "Qt5HttpServerTestApp";
+    name: "app-test-qt5-http-request-parsing";
+    targetName: "testQt5HttpRequestParsing";
 
     Depends {
         name: "cpp";
@@ -17,11 +17,16 @@ Application {
 
     Group {
         name: "C++ Sources";
-        files: ["Example*.cpp", "main.cpp"];
+        files: [
+            "ExampleRequestParsing.cpp",
+            "main_requestParsing.cpp",
+        ]
     }
     Group {
         name: "C++ Headers";
-        files: ["Example*.h"]
+        files: [
+            "ExampleRequestParsing.h",
+        ]
     }
     Group {
         qbs.install: true;

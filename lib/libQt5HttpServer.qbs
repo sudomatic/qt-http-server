@@ -26,11 +26,23 @@ Product {
     }
     Group {
         name: "C++ Sources";
-        files: ["QtHttp*.cpp"];
+        files: [
+            "QtHttpClientWrapper.cpp",
+            "QtHttpHeader.cpp",
+            "QtHttpReply.cpp",
+            "QtHttpRequest.cpp",
+            "QtHttpServer.cpp",
+        ]
     }
     Group {
         name: "C++ Headers";
-        files: ["QtHttp*.h"]
+        files: [
+            "QtHttpClientWrapper.h",
+            "QtHttpHeader.h",
+            "QtHttpReply.h",
+            "QtHttpRequest.h",
+            "QtHttpServer.h",
+        ]
     }
     Group {
         qbs.install: true;

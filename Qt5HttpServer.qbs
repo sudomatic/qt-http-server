@@ -3,8 +3,9 @@ import qbs;
 Project {
     name: "The Qt5 HTTP Server";
     references: [
-        "libQt5HttpServer.qbs",
-        "testAppQt5HttpServer.qbs",
+        "lib/libQt5HttpServer.qbs",
+        "test/static-files/testAppQtHttpStaticFiles.qbs",
+        "test/request-parsing/testAppQtHttpRequestParsing.qbs",
     ]
 
     property bool buildAsSharedLib : true;
