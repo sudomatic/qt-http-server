@@ -12,6 +12,7 @@ public:
     static const QByteArray & ContentType;
     static const QByteArray & ContentLength;
     static const QByteArray & Connection;
+    static const QByteArray & Cookie;
     static const QByteArray & UserAgent;
     static const QByteArray & AcceptCharset;
     static const QByteArray & AcceptEncoding;

@@ -7,6 +7,7 @@ const QByteArray & QtHttpHeader::Server             = QByteArrayLiteral ("Server
 const QByteArray & QtHttpHeader::Date               = QByteArrayLiteral ("Date");
 const QByteArray & QtHttpHeader::Host               = QByteArrayLiteral ("Host");
 const QByteArray & QtHttpHeader::Accept             = QByteArrayLiteral ("Accept");
+const QByteArray & QtHttpHeader::Cookie             = QByteArrayLiteral ("Cookie");
 const QByteArray & QtHttpHeader::ContentType        = QByteArrayLiteral ("Content-Type");
 const QByteArray & QtHttpHeader::ContentLength      = QByteArrayLiteral ("Content-Length");
 const QByteArray & QtHttpHeader::Connection         = QByteArrayLiteral ("Connection");
