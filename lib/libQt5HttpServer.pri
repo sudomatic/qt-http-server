@@ -1,6 +1,8 @@
 
 QT += core network
 
+INCLUDEPATH += $$PWD
+
 SOURCES += \
     $$PWD/QtHttpClientWrapper.cpp \
     $$PWD/QtHttpHeader.cpp \
