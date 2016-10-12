@@ -16,3 +16,6 @@ HEADERS += \
     $$PWD/QtHttpReply.h \
     $$PWD/QtHttpRequest.h \
     $$PWD/QtHttpServer.h
+
+DISTFILES += \
+    $$PWD/LICENSE.md
