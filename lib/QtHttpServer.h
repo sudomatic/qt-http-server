@@ -20,7 +20,11 @@ public:
 
     static const QString & HTTP_VERSION;
 
-    const QString getServerName (void) const;
+    const QString & getServerName (void) const;
+
+    quint16 getServerPort (void) const;
+
+    QString getErrorString (void) const;
 
 public slots:
     void start         (quint16 port = 0);
