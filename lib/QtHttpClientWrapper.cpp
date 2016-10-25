@@ -53,7 +53,7 @@ void QtHttpClientWrapper::onClientDataReceived (void) {
                             //          << "command :" << command
                             //          << "url :"     << url
                             //          << "version :" << version;
-                            m_currentRequest = new QtHttpRequest (m_serverHandle);
+                            m_currentRequest = new QtHttpRequest (this, m_serverHandle);
                             m_currentRequest->setUrl     (QUrl (url));
                             m_currentRequest->setCommand (command);
                             m_parsingStatus = AwaitingHeaders;

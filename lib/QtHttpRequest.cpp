@@ -3,12 +3,13 @@
 #include "QtHttpHeader.h"
 #include "QtHttpServer.h"
 
-QtHttpRequest::QtHttpRequest (QtHttpServer * parent)
+QtHttpRequest::QtHttpRequest (QtHttpClientWrapper * client, QtHttpServer * parent)
     : QObject         (parent)
     , m_url           (QUrl ())
     , m_command       (QString ())
     , m_data          (QByteArray ())
     , m_serverHandle  (parent)
+    , m_clientHandle  (client)
 {
     // set some additional headers
     addHeader (QtHttpHeader::ContentLength, QByteArrayLiteral ("0"));
@@ -34,6 +35,10 @@ QByteArray QtHttpRequest::getRawData (void) const {
 
 QList<QByteArray> QtHttpRequest::getHeadersList (void) const {
     return m_headersHash.keys ();
+}
+
+QtHttpClientWrapper * QtHttpRequest::getClient (void) const {
+    return m_clientHandle;
 }
 
 QByteArray QtHttpRequest::getHeader (const QByteArray & header) const {

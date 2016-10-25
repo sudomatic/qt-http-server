@@ -8,18 +8,20 @@
 #include <QUrl>
 
 class QtHttpServer;
+class QtHttpClientWrapper;
 
 class QtHttpRequest : public QObject {
     Q_OBJECT
 
 public:
-    explicit QtHttpRequest (QtHttpServer * parent);
+    explicit QtHttpRequest (QtHttpClientWrapper * client, QtHttpServer * parent);
 
-    int               getRawDataSize (void) const;
-    QUrl              getUrl         (void) const;
-    QString           getCommand     (void) const;
-    QByteArray        getRawData     (void) const;
-    QList<QByteArray> getHeadersList (void) const;
+    int                   getRawDataSize (void) const;
+    QUrl                  getUrl         (void) const;
+    QString               getCommand     (void) const;
+    QByteArray            getRawData     (void) const;
+    QList<QByteArray>     getHeadersList (void) const;
+    QtHttpClientWrapper * getClient      (void) const;
 
     QByteArray getHeader (const QByteArray & header) const;
 
@@ -34,6 +36,7 @@ private:
     QString                       m_command;
     QByteArray                    m_data;
     QtHttpServer *                m_serverHandle;
+    QtHttpClientWrapper *         m_clientHandle;
     QHash<QByteArray, QByteArray> m_headersHash;
 };
 
