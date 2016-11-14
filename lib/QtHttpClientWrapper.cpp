@@ -81,9 +81,8 @@ void QtHttpClientWrapper::onClientDataReceived (void) {
                             //          << "value :"  << value;
                             m_currentRequest->addHeader (header, value);
                             if (header == QtHttpHeader::ContentLength) {
-                                int  len = -1;
                                 bool ok  = false;
-                                len = value.toInt (&ok, 10);
+                                const int len = value.toInt (&ok, 10);
                                 if (ok) {
                                     m_currentRequest->addHeader (QtHttpHeader::ContentLength, QByteArray::number (len));
                                 }
