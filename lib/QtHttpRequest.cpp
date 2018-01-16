@@ -16,6 +16,8 @@ QtHttpRequest::QtHttpRequest (QtHttpClientWrapper * client, QtHttpServer * paren
     addHeader (QtHttpHeader::Connection,    QByteArrayLiteral ("Keep-Alive"));
 }
 
+QtHttpRequest::~QtHttpRequest (void) { }
+
 QUrl QtHttpRequest::getUrl (void) const {
     return m_url;
 }

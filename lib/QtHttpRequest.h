@@ -15,6 +15,7 @@ class QtHttpRequest : public QObject {
 
 public:
     explicit QtHttpRequest (QtHttpClientWrapper * client, QtHttpServer * parent);
+    virtual ~QtHttpRequest (void);
 
     int                   getRawDataSize (void) const;
     QUrl                  getUrl         (void) const;

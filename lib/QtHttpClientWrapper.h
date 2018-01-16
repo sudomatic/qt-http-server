@@ -15,6 +15,7 @@ class QtHttpClientWrapper : public QObject {
 
 public:
     explicit QtHttpClientWrapper (QTcpSocket * sock, QtHttpServer * parent);
+    virtual ~QtHttpClientWrapper (void);
 
     static const char SPACE = ' ';
     static const char COLON = ':';

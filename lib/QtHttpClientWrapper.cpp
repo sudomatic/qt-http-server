@@ -24,11 +24,13 @@ QtHttpClientWrapper::QtHttpClientWrapper (QTcpSocket * sock, QtHttpServer * pare
     connect (m_sockClient, &QTcpSocket::readyRead, this, &QtHttpClientWrapper::onClientDataReceived);
 }
 
+QtHttpClientWrapper::~QtHttpClientWrapper (void) { }
+
 QString QtHttpClientWrapper::getGuid (void) {
     if (m_guid.isEmpty ()) {
         m_guid = QString::fromLocal8Bit (
                      QCryptographicHash::hash (
-                         QByteArray::number ((quint64) (this)),
+                         QByteArray::number (quint64 (this)),
                          QCryptographicHash::Md5
                          ).toHex ()
                      );
@@ -39,15 +41,15 @@ QString QtHttpClientWrapper::getGuid (void) {
 void QtHttpClientWrapper::onClientDataReceived (void) {
     if (m_sockClient != Q_NULLPTR) {
         while (m_sockClient->bytesAvailable ()) {
-            QByteArray line = m_sockClient->readLine ();
+            const QByteArray line = m_sockClient->readLine ();
             switch (m_parsingStatus) { // handle parsing steps
                 case AwaitingRequest: { // "command url version" × 1
-                    QString str = QString::fromUtf8 (line).trimmed ();
-                    QStringList parts = str.split (SPACE, QString::SkipEmptyParts);
+                    const QString str = QString::fromUtf8 (line).trimmed ();
+                    const QStringList parts = str.split (SPACE, QString::SkipEmptyParts);
                     if (parts.size () == 3) {
-                        QString command = parts.at (0);
-                        QString url     = parts.at (1);
-                        QString version = parts.at (2);
+                        const QString command = parts.at (0);
+                        const QString url     = parts.at (1);
+                        const QString version = parts.at (2);
                         if (version == QtHttpServer::HTTP_VERSION) {
                             //qDebug () << "Debug : HTTP"
                             //          << "command :" << command
@@ -72,16 +74,16 @@ void QtHttpClientWrapper::onClientDataReceived (void) {
                 case AwaitingHeaders: { // "header: value" × N (until empty line)
                     QByteArray raw = line.trimmed ();
                     if (!raw.isEmpty ()) { // parse headers
-                        int pos = raw.indexOf (COLON);
+                        const int pos = raw.indexOf (COLON);
                         if (pos > 0) {
-                            QByteArray header = raw.left (pos).trimmed ();
-                            QByteArray value  = raw.mid  (pos +1).trimmed ();
+                            const QByteArray header = raw.left (pos).trimmed ();
+                            const QByteArray value  = raw.mid  (pos +1).trimmed ();
                             //qDebug () << "Debug : HTTP"
                             //          << "header :" << header
                             //          << "value :"  << value;
                             m_currentRequest->addHeader (header, value);
                             if (header == QtHttpHeader::ContentLength) {
-                                bool ok  = false;
+                                bool ok = false;
                                 const int len = value.toInt (&ok, 10);
                                 if (ok) {
                                     m_currentRequest->addHeader (QtHttpHeader::ContentLength, QByteArray::number (len));
@@ -144,8 +146,7 @@ void QtHttpClientWrapper::onClientDataReceived (void) {
 }
 
 void QtHttpClientWrapper::onReplySendHeadersRequested (void) {
-    QtHttpReply * reply = qobject_cast<QtHttpReply *> (sender ());
-    if (reply != Q_NULLPTR) {
+    if (QtHttpReply * reply = qobject_cast<QtHttpReply *> (sender ())) {
         QByteArray data;
         // HTTP Version + Status Code + Status Msg
         data.append (QtHttpServer::HTTP_VERSION);
@@ -178,8 +179,7 @@ void QtHttpClientWrapper::onReplySendHeadersRequested (void) {
 }
 
 void QtHttpClientWrapper::onReplySendDataRequested (void) {
-    QtHttpReply * reply = qobject_cast<QtHttpReply *> (sender ());
-    if (reply != Q_NULLPTR) {
+    if (QtHttpReply * reply = qobject_cast<QtHttpReply *> (sender ())) {
         // content raw data
         QByteArray data = reply->getRawData ();
         if (reply->useChunked ()) {
@@ -206,15 +206,15 @@ QtHttpClientWrapper::ParsingStatus QtHttpClientWrapper::sendReplyToClient (QtHtt
             m_sockClient->write ("0" % CRLF % CRLF);
             m_sockClient->flush ();
         }
-        if (m_currentRequest != Q_NULLPTR) {
-            static const QByteArray & CLOSE = QByteArrayLiteral ("close");
-            if (m_currentRequest->getHeader (QtHttpHeader::Connection).toLower () == CLOSE) {
-                // must close connection after this request
-                m_sockClient->close ();
-            }
-            m_currentRequest->deleteLater ();
-            m_currentRequest = Q_NULLPTR;
+    }
+    if (m_currentRequest != Q_NULLPTR) {
+        static const QByteArray & CLOSE = QByteArrayLiteral ("close");
+        if (m_currentRequest->getHeader (QtHttpHeader::Connection).toLower () == CLOSE) {
+            // must close connection after this request
+            m_sockClient->close ();
         }
+        m_currentRequest->deleteLater ();
+        m_currentRequest = Q_NULLPTR;
     }
     return AwaitingRequest;
 }

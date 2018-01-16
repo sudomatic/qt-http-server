@@ -128,6 +128,7 @@ void QtHttpServer::onClientDisconnected (void) {
             emit clientDisconnected (wrapper->getGuid ());
             wrapper->deleteLater ();
             m_socksClientsHash.remove (sockClient);
+            sockClient->deleteLater ();
         }
     }
 }
