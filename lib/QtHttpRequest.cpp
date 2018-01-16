@@ -28,7 +28,6 @@ int QtHttpRequest::getRawDataSize (void) const {
     return m_data.size ();
 }
 
-
 QByteArray QtHttpRequest::getRawData (void) const {
     return m_data;
 }

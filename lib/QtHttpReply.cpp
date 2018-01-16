@@ -4,6 +4,7 @@
 #include "QtHttpServer.h"
 
 #include <QDateTime>
+#include <QLocale>
 
 QtHttpReply::QtHttpReply (QtHttpServer * parent)
     : QObject        (parent)
@@ -13,7 +14,7 @@ QtHttpReply::QtHttpReply (QtHttpServer * parent)
     , m_serverHandle (parent)
 {
     // set some additional headers
-    addHeader (QtHttpHeader::Date,   QDateTime::currentDateTimeUtc ().toString ("ddd, dd MMM yyyy hh:mm:ss t").toUtf8 ());
+    addHeader (QtHttpHeader::Date,   QLocale ("C").toString (QDateTime::currentDateTimeUtc (), "ddd, dd MMM yyyy hh:mm:ss t").toUtf8 ());
     addHeader (QtHttpHeader::Server, m_serverHandle->getServerName ().toUtf8 ());
 }
 
@@ -64,7 +65,7 @@ void QtHttpReply::appendRawData (const QByteArray & data) {
 }
 
 void QtHttpReply::addHeader (const QByteArray & header, const QByteArray & value) {
-    QByteArray key = header.trimmed ();
+    const QByteArray key = header.trimmed ();
     if (!key.isEmpty ()) {
         m_headersHash.insert (key, value);
     }
